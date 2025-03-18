@@ -5,6 +5,8 @@ import 'package:first_app/gradient_conteiner.dart';
 // Ogni elemento dell'interfaccia utente è un widget, che può essere nidificato all'interno di altri widget.
 // Per saperne di più sui widget, visita la documentazione ufficiale: https://docs.flutter.dev/ui/widgets
 
+const List<Color> coloriSfondo = [Colors.black, Colors.blue, Colors.pink];
+
 void main() {
   // Il metodo `main()` è il punto di ingresso dell'app Flutter.
 
@@ -20,7 +22,11 @@ void main() {
         // `Scaffold` è un widget che fornisce la struttura di base per la UI,
         // come AppBar, FloatingActionButton, Drawer, etc.
         //backgroundColor: Colors.pink, solo un colore
-        body: GradientConteiner(),
+        body: GradientConteiner(
+          colori: coloriSfondo,
+          partenzaColori: Alignment.topLeft,
+          fineColori: Alignment.bottomRight,
+        ),
       ),
     ),
   ); // Fine di `runApp()`

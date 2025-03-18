@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class CentralTest extends StatelessWidget {
-  const CentralTest({super.key});
+  const CentralTest(this.text, {super.key});
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        "🌟 Ciao Mondo! 🌟",
-        style: TextStyle(
+        text,
+        style: const TextStyle(
           fontSize: 26,
           fontWeight: FontWeight.bold,
           fontStyle: FontStyle.italic,
