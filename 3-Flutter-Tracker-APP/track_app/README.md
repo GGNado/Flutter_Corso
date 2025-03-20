@@ -1,5 +1,7 @@
 # Track App
 
+![Track App Logo](screen.png)
+
 Track App è un'applicazione Flutter per la gestione delle spese personali. Consente agli utenti di aggiungere, visualizzare e rimuovere le spese, categorizzandole in diverse categorie come alimentari, trasporti, lavoro e abbigliamento. L'app fornisce anche una visualizzazione grafica delle spese per categoria.
 
 ## Funzionalità principali
