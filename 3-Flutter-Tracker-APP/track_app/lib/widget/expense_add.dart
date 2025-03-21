@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:track_app/model/expense.dart';
 
 class ExpenseAdd extends StatefulWidget {
@@ -69,8 +72,45 @@ class _ExpenseAddState extends State<ExpenseAdd> {
         categoria: category,
       );
 
+      invioDati(newExpense);
+    }
+  }
+
+  Future<void> invioDati(Expense newExpense) async {
+    final url = Uri.parse(
+      'http://localhost:8080/api/expenses',
+    ); // <-- personalizza l'endpoint
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'nome': newExpense.nome,
+        'spesa': newExpense.spesa,
+        'data': newExpense.data.toIso8601String(),
+        'categoria': newExpense.categoria.name.toUpperCase(),
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Se va tutto bene, aggiorna lo schermo
       widget.onAddExpense(newExpense);
       Navigator.of(context).pop(newExpense);
+    } else {
+      // Errore lato server
+      showDialog(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: const Text('Errore server'),
+              content: Text('Errore ${response.statusCode}: ${response.body}'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
     }
   }
 

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:track_app/widget/chart/chart.dart';
 import 'package:track_app/widget/expense_add.dart';
 import 'package:track_app/widget/expense_list/expenses_list.dart';
@@ -16,7 +18,7 @@ class Expenses extends StatefulWidget {
   }
 }
 
-final List<Expense> _listaSpese = [
+final List<Expense> _listaSpeseOLD = [
   Expense(
     nome: "Pizza",
     spesa: 10.00,
@@ -38,6 +40,67 @@ final List<Expense> _listaSpese = [
 ];
 
 class _ExpensesState extends State<Expenses> {
+  List<Expense> _listaSpese = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchExpenses();
+  }
+
+  Category fromString(String categoria) {
+    switch (categoria.toLowerCase()) {
+      case 'alimentari':
+        return Category.alimentari;
+      case 'trasporti':
+        return Category.trasporti;
+      case 'work':
+        return Category.work;
+      case 'abbigliamento':
+        return Category.abbigliamento;
+      default:
+        throw ArgumentError('Categoria non valida: $categoria');
+    }
+  }
+
+  Future<void> _fetchExpenses() async {
+    final url = Uri.parse('http://localhost:8080/api/expenses');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List decoded = json.decode(response.body);
+      setState(() {
+        _listaSpese =
+            decoded
+                .map(
+                  (e) => Expense(
+                    nome: e['nome'],
+                    spesa: e['spesa'],
+                    data: DateTime.parse(e['data']),
+                    categoria: fromString(e['categoria']),
+                  ),
+                )
+                .toList();
+      });
+    } else {
+      // gestisci errore
+    }
+  }
+
+  Future<void> _removeFetchExpense(Expense expense) async {
+    String nome = expense.nome;
+    String data = expense.data.toString();
+    final url = Uri.parse(
+      'http://localhost:8080/api/expenses/nome/${nome}/data/${data}',
+    ); // cambia passando l'intero expense
+
+    _listaSpese.remove(expense);
+    final response = await http.delete(url);
+    if (response.statusCode != 200) {
+      // gestisci errore
+      _listaSpese.add(copyExpense(expense));
+    }
+  }
+
   void _openAddExpense() {
     showModalBottomSheet(
       context: context,
@@ -55,9 +118,18 @@ class _ExpensesState extends State<Expenses> {
 
   void _removeExpense(Expense expense) {
     setState(() {
-      print("aaa");
-      _listaSpese.remove(expense);
+      //_listaSpese.remove(expense);
+      _removeFetchExpense(expense);
     });
+  }
+
+  Expense copyExpense(Expense expense) {
+    return Expense(
+      nome: expense.nome,
+      spesa: expense.spesa,
+      data: expense.data,
+      categoria: expense.categoria,
+    );
   }
 
   @override
